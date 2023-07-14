@@ -1,4 +1,4 @@
-_G.get = function(file_name)
+function _G.get(file_name)
 	local FoundModule = script.Main:FindFirstChild(file_name)
 	return FoundModule and require(FoundModule) or nil
 end
