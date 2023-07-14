@@ -1,14 +1,12 @@
 local get = _G.get
-local Controls = get("Controls")
+local Camera = get("Camera")
 
-local module = {}
-
-function module.Init()
-	Controls.Map("Scroll", function(state)
-		print(state)
-	end)
-
-	Controls.InputMap(Enum.UserInputState.MouseWheel, "Scroll")
+local function init()
+	task.wait(10)
+	print("Shook")
+	Camera.Shake(60)
 end
 
-return module
+return {
+	Init = init,
+}

@@ -10,7 +10,7 @@ local PlayerGUI = Player:WaitForChild("PlayerGui")
 _G.DebugVisible = true
 
 local ColorCodes = {
-	[Enum.MessageType.MessageError] = Color3.new(0.658823, 0.121568, 0.121568),
+	[Enum.MessageType.MessageError] = Color3.new(0.945098, 0.513725, 0.023529),
 	[Enum.MessageType.MessageInfo] = Color3.new(0.356862, 0.560784, 0.094117),
 	[Enum.MessageType.MessageOutput] = Color3.new(1, 1, 1),
 	[Enum.MessageType.MessageWarning] = Color3.new(0.894117, 0.878431, 0.090196),

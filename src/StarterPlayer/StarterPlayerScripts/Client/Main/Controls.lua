@@ -25,6 +25,7 @@ local function OnInput(input, gpe)
 	if not gpe then
 		local CaughtInput = input.KeyCode == Enum.KeyCode.Unknown and input.UserInputType or input.KeyCode
 		local Entry = controls._inputMap[CaughtInput]
+
 		if Entry then
 			ForPairs(Entry, function(_, value)
 				controls._map[value](input.UserInputState)
@@ -65,9 +66,10 @@ end
 
 function controls.InputMap(input: Input, map_index: string)
 	local InputMap = controls._inputMap[input]
-	if InputMap then
-		table.insert(controls._inputMap[input], map_index)
+	if not InputMap then
+		controls._inputMap[input] = {}
 	end
+	table.insert(controls._inputMap[input], map_index)
 end
 
 UIS.InputBegan:Connect(OnInput)
