@@ -8,11 +8,11 @@
       "$path": "src/ServerScriptService"
     },
     "StarterPlayer": {
-      "$className": "StarterPlayer",
+      "$className": "ReplicatedFirst",
       "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
+        "$className": "ReplicatedFirst",
         "$ignoreUnknownInstances": true,
-        "$path": "src/StarterPlayer/StarterPlayerScripts"
+        "$path": "src/ReplicatedFirst"
       },
       "$ignoreUnknownInstances": true
     }

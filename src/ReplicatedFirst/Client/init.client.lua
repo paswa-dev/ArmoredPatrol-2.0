@@ -1,4 +1,4 @@
-function _G.get(file_name)
+_G.get = function(file_name)
 	local FoundModule = script.Main:FindFirstChild(file_name)
 	return FoundModule and require(FoundModule) or nil
 end
@@ -13,11 +13,10 @@ local function LazyLoad(file)
 end
 
 for _, module in next, script.Client:GetChildren() do
-	local LoadedModule = LazyLoad(module)
-	if LoadedModule["Init"] then
-		LoadedModule.Init()
-	end
+	task.spawn(function()
+		local LoadedModule = LazyLoad(module)
+		if LoadedModule["Init"] then
+			LoadedModule.Init()
+		end
+	end)
 end
-
-script.Main:Destroy()
-script.Client:Destroy()
