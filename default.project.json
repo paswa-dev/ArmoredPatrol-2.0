@@ -7,9 +7,9 @@
       "$ignoreUnknownInstances": true,
       "$path": "src/ServerScriptService"
     },
-    "ReplicatedFirst": {
-      "$className": "ReplicatedFirst",
-      "$path": "src/ReplicatedFirst",
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$path": "src/StaterPlayerScripts",
       "$ignoreUnknownInstances": true
     }
   }
