@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 
-local function Team()
+local function Object()
 	local Data = {
 		name = "No Name",
 		players = {},
@@ -24,7 +24,7 @@ local function ForPairs(t, callback)
 end
 
 local Team = {}
-Team.Teams = { Team(), Team() }
+Team.Teams = { Object(), Object() }
 
 function Team.Get(name)
 	local Found = nil

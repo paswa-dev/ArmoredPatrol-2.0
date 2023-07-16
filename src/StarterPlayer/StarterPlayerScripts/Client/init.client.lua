@@ -1,13 +1,7 @@
 local Client = script.Client
 local Main = script.Main
-local Loaded = 0
 
-local function Set(name, value)
-	script:SetAttribute(name, value)
-end
-
-Set("Expected", #Client:GetChildren())
-Set("Loaded", Loaded)
+script:SetAttribute("Finished", false)
 
 _G.get = function(file_name)
 	local FoundModule = Main:FindFirstChild(file_name)
@@ -29,7 +23,5 @@ for _, module in next, Client:GetChildren() do
 	if LoadedModule["Init"] then
 		LoadedModule.Init()
 	end
-	Loaded += 1
-	warn(Loaded)
-	Set("Loaded", Loaded)
 end
+script:SetAttribute("Finished", true)
