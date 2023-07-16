@@ -1,3 +1,4 @@
+local HTTP = game:GetService("HttpService")
 local Datastore = game:GetService("DataStoreService")
 local PlayerDS = Datastore:GetDataStore("Data", "Player")
 
@@ -5,16 +6,12 @@ local function PlayerToID(player)
 	return "P" .. player.UserId
 end
 
-local function IDToPlayer(ID)
-	return string.sub(ID, 2, string.len(ID))
-end --// Why did I need this?
-
 local DS = {}
 DS.__index = DS
 
 function DS.new(player)
 	local config = setmetatable({ ID = PlayerToID(player) }, DS)
-	config.Data = config:Get() or {}
+	config.Data = HTTP:JSONDecode(config:RawGet(config.ID)) or {}
 	return config
 end
 
@@ -43,20 +40,31 @@ function DS:RawUpdate(Index, Callback)
 	return Succes
 end
 
---function DS:RawIncrement(Index, Value) end
-
-function DS:Get()
-	return self:RawGet(self.ID)
+function DS:Get(Index)
+	return Index and self.Data[Index] or self.Data
 end
 
-function DS:Set(Value)
-	return self:RawSet(self.ID, Value)
+function DS:Set(Index, Value)
+	if Index then
+		local Reference = self.Data
+		Reference[Index] = Value
+	else
+		self.Data = Value
+	end
 end
 
 function DS:Update(Callback)
-	return self:RawUpdate(self.ID, Callback)
+	local New = Callback(self.Data)
+	DS:Set(New)
 end
 
---function DS:Increment(Value) end
+function DS:Save()
+	local Encoded = HTTP:JSONEncode(self.Data)
+	if DS:RawSet(Encoded) then
+		print("Set yay!")
+	else
+		print("bro didn't work")
+	end
+end
 
 return DS
