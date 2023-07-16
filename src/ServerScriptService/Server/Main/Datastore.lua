@@ -11,7 +11,7 @@ DS.__index = DS
 
 function DS.new(player)
 	local config = setmetatable({ ID = PlayerToID(player) }, DS)
-	config.Data = HTTP:JSONDecode(config:RawGet(config.ID)) or {}
+	config.Data = HTTP:JSONDecode(config:RawGet(config.ID) or "{}")
 	return config
 end
 

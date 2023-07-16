@@ -1,14 +1,13 @@
-local ContentProvider = game:GetService("ContentProvider")
-local communication = { Started = false }
-communication.channels = {}
+local Class = { Started = false }
+Class.channels = {}
 
 local function __init__() --// Yes this is from python. :(
-	if not communication.Started then
-		communication.route = Instance.new("BindableEvent")
-		communication.route_event = communication.route.Event
+	if not Class.Started then
+		Class.route = Instance.new("BindableEvent")
+		Class.route_event = Class.route.Event
 
-		communication._route_connection = communication.route_event:Connect(function(channel_name, ...)
-			local FunctionBin = communication.channels[channel_name]
+		Class._route_connection = Class.route_event:Connect(function(channel_name, ...)
+			local FunctionBin = Class.channels[channel_name]
 			if FunctionBin then
 				for _, func in pairs(FunctionBin) do
 					func(...)
@@ -16,16 +15,16 @@ local function __init__() --// Yes this is from python. :(
 			end
 		end)
 
-		communication.Started = true
+		Class.Started = true
 	end
 end
 
-function communication.channel(channel_name)
-	local Reference = communication.Channels
+function Class.channel(channel_name)
+	local Reference = Class.channels
 	Reference[channel_name] = Reference[channel_name] or {}
 	return {
 		Push = function(...)
-			communication.route:Fire(channel_name, ...)
+			Class.route:Fire(channel_name, ...)
 		end,
 		Recieve = function(callback)
 			table.insert(Reference[channel_name], callback)
@@ -38,4 +37,4 @@ end
 
 __init__()
 
-return communication
+return Class

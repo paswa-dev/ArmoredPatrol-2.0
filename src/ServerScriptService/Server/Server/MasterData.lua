@@ -1,0 +1,3 @@
+return {
+	Init = function() end,
+}

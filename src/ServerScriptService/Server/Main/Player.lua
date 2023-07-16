@@ -1,4 +1,5 @@
 --// Contains/Loads specific data's about the specific player!
+local Teams = game:GetService("Teams")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remote = ReplicatedStorage:FindFirstChild("PlayerCommunication") or Instance.new("RemoteEvent")
 Remote.Name = "PlayerCommunication"
@@ -6,29 +7,35 @@ Remote.Parent = ReplicatedStorage
 
 local get = _G.get
 local Datastore = get("Datastore")
-local Teams = get("Team")
 
-local player = {}
-player.__index = player
+local Class = {}
+Class.__index = Class
 
-function player.new(player)
+function Class.new(player)
 	local config = {}
 	config.Datastore = Datastore.new(player)
 	config.Player = player
 	config.Data = {}
-	return setmetatable(config, player)
+
+	task.spawn(function()
+		player.Team = Teams:WaitForChild("NEUTRAL")
+	end)
+
+	return setmetatable(config, Class)
 end
 
-function player:Set(name, value)
-	return player:SetAttribute(name, value)
+function Class:SetTeam(index) end
+
+function Class:Set(name, value)
+	return self.Player:SetAttribute(name, value)
 end
 
-function player:Get(name)
-	return player:GetAttribute(name)
+function Class:Get(name)
+	return self.Player:GetAttribute(name)
 end
 
-function player:Communicate(...)
+function Class:Communicate(...)
 	Remote:FireClient(self.Player, ...)
 end
 
-return player
+return Class
