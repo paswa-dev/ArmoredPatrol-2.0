@@ -3,7 +3,7 @@ local Logging = game:GetService("LogService")
 local Player = game:GetService("Players").LocalPlayer
 
 local get = _G.get
-local Fusion = get("fusion")
+local Fusion = get("Fusion")
 
 local PlayerGUI = Player:WaitForChild("PlayerGui")
 

@@ -1,26 +1,11 @@
-local player = {
-	Started = false,
-}
-
-local function OnCharacter(character)
-	player.Character = character
-	player.Humanoid = character:WaitForChild("Humanoid")
-	player.Root = character:WaitForChild("HumanoidRootPart")
-	player.Animator = player.Humanoid:WaitForChild("Animator")
-	warn("Reloaded...")
-end
+local Player = { Started = false }
 
 local function init()
-	if not player.Started then
-		player.Started = true
-		player.Camera = workspace.CurrentCamera
-		player.Player = game.Players.LocalPlayer
-		player.PlayerGUI = player.Player:WaitForChild("PlayerGui")
-		player.Character = player.Player.Character or player.Player.CharacterAdded:Wait()
-		OnCharacter(player.Character)
-		player.Player.CharacterAdded:Connect(OnCharacter)
+	if not Player.Started then
+		Player.Started = true
+		--// Add player-server data.
 	end
 end
 
 init()
-return player
+return Player

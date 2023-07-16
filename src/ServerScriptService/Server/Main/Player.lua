@@ -1,3 +1,2 @@
-local module = {}
-
-return module
+local get = _G.get
+local Player = get("Player")

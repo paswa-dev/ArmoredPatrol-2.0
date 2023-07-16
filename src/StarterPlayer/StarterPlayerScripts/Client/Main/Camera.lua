@@ -1,7 +1,7 @@
 local get = _G.get
 local Spring = get("Spring")
 local RunService = get("RunService")
-local Player = get("Player")
+local Player = get("Local")
 
 local RandomObject = Random.new()
 local ShakeSpring = Spring.new(Vector2.zero, 25, 0.1, false)
