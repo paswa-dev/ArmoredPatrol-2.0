@@ -1,15 +1,10 @@
 local Client = script.Client
 local Main = script.Main
+local Loaded = 0
 
 local function Set(name, value)
-	script.Parent:SetAttribute(name, value)
+	script:SetAttribute(name, value)
 end
-
-local function Get(name)
-	script.Parent:GetAttribute(name)
-end
-
-local Loaded = 1
 
 Set("Expected", #Client:GetChildren())
 Set("Loaded", Loaded)
@@ -30,12 +25,11 @@ local function LazyLoad(file)
 end
 
 for _, module in next, Client:GetChildren() do
-	task.spawn(function()
-		local LoadedModule = LazyLoad(module)
-		if LoadedModule["Init"] then
-			LoadedModule.Init()
-		end
-		Loaded += 1
-		Set("Loaded", Loaded)
-	end)
+	local LoadedModule = LazyLoad(module)
+	if LoadedModule["Init"] then
+		LoadedModule.Init()
+	end
+	Loaded += 1
+	warn(Loaded)
+	Set("Loaded", Loaded)
 end
