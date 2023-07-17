@@ -17,10 +17,6 @@ function Class.new(player)
 	config.Player = player
 	config.Data = {}
 
-	task.spawn(function()
-		player.Team = Teams:WaitForChild("NEUTRAL")
-	end)
-
 	return setmetatable(config, Class)
 end
 
