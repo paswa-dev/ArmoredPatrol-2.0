@@ -7,3 +7,4 @@ realm = "shared"
 [dependencies]
 fusion = "elttob/fusion@0.2.0"
 fastsignal = "lucasmzreal/fastsignal@10.2.1"
+roact = "roblox/roact@1.4.4"
