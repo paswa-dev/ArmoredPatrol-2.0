@@ -14,7 +14,7 @@ local function TeamObject(name, color, auto)
 	Team.Parent = TEAM_SERVICE
 	return Team
 end
-
+--// TODO: Setup remotes and stuff
 local function __init__()
 	for _, TEAM in next, TEAMS do
 		TeamObject(TEAM[1], TEAM[2], TEAM[3])

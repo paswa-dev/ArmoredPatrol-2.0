@@ -5,9 +5,14 @@ registry = "test"
 [[package]]
 name = "blake/armoredpatrol-20"
 version = "0.1.0"
-dependencies = [["fusion", "elttob/fusion@0.2.0"]]
+dependencies = [["fastsignal", "lucasmzreal/fastsignal@10.2.1"], ["fusion", "elttob/fusion@0.2.0"]]
 
 [[package]]
 name = "elttob/fusion"
 version = "0.2.0"
+dependencies = []
+
+[[package]]
+name = "lucasmzreal/fastsignal"
+version = "10.2.1"
 dependencies = []
