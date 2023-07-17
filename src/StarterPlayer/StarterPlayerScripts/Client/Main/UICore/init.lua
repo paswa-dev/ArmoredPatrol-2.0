@@ -24,6 +24,7 @@ Updates Text or Properties on the mounted or unmounted components
 --]]
 
 local CoreModule = {}
+CoreModule.PlayerGui = PlayerGui
 
 function CoreModule.Component(name, ...)
 	if COMPONENTS[name] then

@@ -3,14 +3,22 @@ local Fusion = GET("Fusion")
 local New, Children = Fusion.New, Fusion.Children
 
 local function Component(text, textColor, gradientColor, image_id, image_transparency)
+	text = text or "Placeholder"
+	textColor = textColor or Color3.fromRGB(159, 159, 159)
+	gradientColor = gradientColor or Color3.fromRGB(255, 255, 255)
+	image_id = image_id or ""
+	image_transparency = image_transparency or 0
+
 	return New("ImageLabel")({
 		Name = "TextBin",
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BorderColor3 = Color3.fromRGB(0, 0, 0),
 		BorderSizePixel = 0,
 		LayoutOrder = 0,
-		Position = UDim2.fromScale(0.407, 0.13),
-		Size = UDim2.fromScale(0.2, 0.82),
+		Size = UDim2.fromScale(1, 1),
+		ScaleType = Enum.ScaleType.Crop,
+		Image = image_id,
+		ImageTransparency = image_transparency,
 
 		[Children] = {
 			New("Frame")({
@@ -67,10 +75,15 @@ local function Component(text, textColor, gradientColor, image_id, image_transpa
 	})
 end
 
+--[[
+Text,
+TextColor,
+GradientColor,
+Image,
+ImageTransparency
+--]]
+
 return function(Data)
-	local Object = Component(Data.Text, Data.TextColor3, Data.GradientColor3, Data.Image, Data.ImageTransparency)
-	return {
-		Object = Object,
-		TextObject = Object.Gradient.Value,
-	}
+	local Object = Component(Data.Text, Data.TextColor, Data.GradientColor, Data.Image, Data.ImageTransparency)
+	return Object
 end
