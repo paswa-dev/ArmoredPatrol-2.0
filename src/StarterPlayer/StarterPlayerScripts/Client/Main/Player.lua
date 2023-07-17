@@ -3,16 +3,16 @@ local get = _G.get
 
 local Communication = get("Communication")
 
-local Player = { Started = false }
+local Class = { Started = false }
 
 local function init()
-	if not Player.Started then
-		Player.Started = true
-		Player.Channel = Communication.channel("Data")
-		Player.Communication = Replicated:FindFirstChild("PlayerCommunication") :: RemoteEvent
-		Player.Communication.OnClientEvent:Connect(Player.Channel.Push)
+	if not Class.Started then
+		Class.Started = true
+		Class.Channel = Communication.channel("Data")
+		Class.Communication = Replicated:FindFirstChild("PlayerCommunication") :: RemoteEvent
+		Class.Communication.OnClientEvent:Connect(Class.Channel.Push)
 	end
 end
 
 init()
-return Player
+return Class

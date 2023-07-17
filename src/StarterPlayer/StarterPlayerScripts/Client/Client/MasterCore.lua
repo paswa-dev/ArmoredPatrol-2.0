@@ -1,6 +1,7 @@
 local get = _G.get
 local Fusion = get("Fusion")
 local LocalPlayer = get("Local")
+local DisableCore = get("DisableCore")
 local PlayerGUI = LocalPlayer.PlayerGUI
 
 --// Health
@@ -15,6 +16,7 @@ function __init__()
 		ResetOnSpawn = false,
 		Parent = PlayerGUI,
 	})
+	DisableCore()
 	Vitals(ScreenGui)
 	PlayerView(ScreenGui)
 end

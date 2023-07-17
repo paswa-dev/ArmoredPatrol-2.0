@@ -10,9 +10,9 @@ local function Random2DUnit()
 	return Vector2.new(RandomObject:NextNumber(-1, 1), RandomObject:NextNumber(-1, 1))
 end
 
-local camera = {}
+local Class = {}
 
-function camera.Shake(intensity)
+function Class.Shake(intensity)
 	local NewShakeVector = Random2DUnit() * intensity
 	ShakeSpring._spring:Impulse(NewShakeVector)
 end
@@ -21,4 +21,4 @@ RunService.Add(RunService.NewID(), function()
 	local SpringVec = ShakeSpring._spring.Position
 	Player.Humanoid.CameraOffset = Vector3.new(SpringVec.X, SpringVec.Y, 0)
 end)
-return camera
+return Class

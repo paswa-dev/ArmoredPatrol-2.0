@@ -13,6 +13,4 @@ local function __init__()
 	end
 end
 
-return {
-	Init = __init__,
-}
+return __init__

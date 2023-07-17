@@ -4,29 +4,29 @@ local clock = os.clock
 local insert = table.insert
 local remove = table.remove
 
-local RSWrapper = {}
-RSWrapper.Functions = {}
+local Class = {}
+Class.Functions = {}
 
-RSWrapper.NewID = function()
+Class.NewID = function()
 	return clock()
 end
 
-RSWrapper.Add = function(special_id: number | string, func: (dt: number) -> ())
-	insert(RSWrapper.Functions, { Function = func, id = special_id })
+Class.Add = function(special_id: number | string, func: (dt: number) -> ())
+	insert(Class.Functions, { Function = func, id = special_id })
 end
 
-RSWrapper.Remove = function(special_id: number | string)
-	for index, entry in next, RSWrapper.Functions do
+Class.Remove = function(special_id: number | string)
+	for index, entry in next, Class.Functions do
 		if entry.id == special_id then
-			remove(RSWrapper.Functions, index)
+			remove(Class.Functions, index)
 		end
 	end
 end
 
-RSWrapper.Connection = RS.RenderStepped:Connect(function(dt)
-	for _, v in RSWrapper.Functions do
+Class.Connection = RS.RenderStepped:Connect(function(dt)
+	for _, v in Class.Functions do
 		v.Function(dt)
 	end
 end)
 
-return RSWrapper
+return Class
