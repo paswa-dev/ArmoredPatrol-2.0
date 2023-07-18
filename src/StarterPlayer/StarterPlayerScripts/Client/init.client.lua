@@ -19,9 +19,11 @@ local function LazyLoad(file)
 end
 
 for _, module in next, Client:GetChildren() do
-	local LoadedModule = LazyLoad(module)
-	if LoadedModule["Init"] then
-		LoadedModule.Init()
-	end
+	task.spawn(function()
+		local LoadedModule = LazyLoad(module)
+		if LoadedModule["Init"] then
+			LoadedModule.Init()
+		end
+	end)
 end
 script:SetAttribute("Finished", true)

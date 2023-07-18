@@ -1,5 +1,4 @@
 local StarterGui = game:GetService("StarterGui")
-
 local TO_DISABLE = {
 	Enum.CoreGuiType.PlayerList,
 	Enum.CoreGuiType.Backpack,
@@ -13,4 +12,6 @@ local function __init__()
 	end
 end
 
-return __init__
+return {
+	Init = __init__,
+}

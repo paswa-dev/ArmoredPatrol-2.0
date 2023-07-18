@@ -21,4 +21,5 @@ RunService.Add(RunService.NewID(), function()
 	local SpringVec = ShakeSpring._spring.Position
 	Player.Humanoid.CameraOffset = Vector3.new(SpringVec.X, SpringVec.Y, 0)
 end)
+
 return Class
