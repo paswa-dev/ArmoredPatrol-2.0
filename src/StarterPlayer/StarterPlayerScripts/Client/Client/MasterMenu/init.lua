@@ -1,4 +1,11 @@
 local TWEENSERVICE = game:GetService("TweenService")
+local REPLICATEDSTORAGE = game:GetService("ReplicatedStorage")
+
+local NETWORK = REPLICATEDSTORAGE.Network
+
+local CHANGE_TEAM_REQUEST = NETWORK.ChangeTeam
+local SPAWN_REQUEST = NETWORK.Spawn
+local DIED = NETWORK.Reload
 
 local get = _G.get
 local ROACT = get("Roact")
@@ -13,37 +20,40 @@ end
 local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local function __init__()
+	local Handle = nil
 	local GUI = New("ScreenGui", {
 		IgnoreGuiInset = true,
 		ResetOnSpawn = false,
 		Name = "Menu",
 	}, {
-		Button = New(CONTAINED["ImageButton"], {
-			name = "Button",
+		Options = New(CONTAINED["Options"], {
 			position = UDim2.fromScale(0.5, 0.5),
-			size = UDim2.fromScale(0.2, 0.2),
-			text = " Button!",
-			textSize = 15,
-			Hover = function(rbx)
-				rbx:TweenSize(UDim2.fromScale(1, 0.3), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 1, true)
-			end,
-			Unhover = function(rbx)
-				rbx:TweenSize(UDim2.fromScale(1, 0.2), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 0.5, true)
-			end,
-			Click = function(rbx)
-				rbx:TweenPosition(
-					UDim2.fromScale(0.1, 1),
-					Enum.EasingDirection.InOut,
-					Enum.EasingStyle.Quart,
-					0.2,
-					true
-				)
-				task.wait(0.1)
-				rbx:TweenPosition(UDim2.fromScale(0, 1), Enum.EasingDirection.InOut, Enum.EasingStyle.Quart, 0.2, true)
-			end,
+			size = UDim2.fromScale(0.5, 0.6),
+			scales = true,
+			cellsize = 0.3,
+			[1] = {
+				text = " Spawn",
+				textsize = 15,
+				callback = function()
+					print("DO Spawn")
+					SPAWN_REQUEST:FireServer()
+					ROACT.unmount(Handle)
+				end,
+			},
+			[2] = {
+				text = " Change Team",
+				textsize = 15,
+				callback = function()
+					print("DO ChangeTeam")
+					CHANGE_TEAM_REQUEST:FireServer()
+				end,
+			},
 		}),
 	})
-	ROACT.mount(GUI, PlayerGui)
+	DIED.OnClientEvent:Connect(function()
+		Handle = ROACT.mount(GUI, PlayerGui)
+	end)
+	Handle = ROACT.mount(GUI, PlayerGui)
 end
 
 return {

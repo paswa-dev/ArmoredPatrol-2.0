@@ -13,6 +13,7 @@ local function ImageTextButton(props)
 			Size = UDim2.fromScale(1, 1),
 			Image = props.Image,
 			BackgroundColor3 = Color3.fromHex("F0EDEE"),
+			ScaleType = Enum.ScaleType.Crop,
 			BorderSizePixel = 0,
 			ZIndex = 1,
 		}),
