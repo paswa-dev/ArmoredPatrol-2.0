@@ -1,7 +1,11 @@
+local get = _G.get
+
 local SoundBin = game.SoundService --// Where the sounds should be dumped
 local Debris = game:GetService("Debris")
-local Controls = _G.get("Controls")
-local Spring = require(script.Parent.Spring)
+--local Controls = get("Controls") --// Add this later
+local Spring = get("Spring")
+
+local RS = game:GetService("RunService")
 
 local Camera = workspace.CurrentCamera
 
@@ -41,7 +45,7 @@ function Class.new(viewmodel)
 	--// Public Variables
 
 	self.CFrame = CFrame.identity
-	self.Settings, self.Model = nil, nil
+	self.Model = nil
 	self.Viewmodel = viewmodel:Clone()
 	self.Animator = self.Viewmodel:FindFirstChildWhichIsA("Animator", true)
 
@@ -57,6 +61,7 @@ function Class.new(viewmodel)
 
 	function self.LoadModel(model)
 		self.Model = model
+		model.Parent = self.Viewmodel
 	end
 
 	function self.Spring(name, value, speed, damping)
@@ -76,6 +81,7 @@ function Class.new(viewmodel)
 	--// Connections
 
 	self.EnabledChanged = self.Viewmodel:GetAttributeChangedSignal("Enabled"):Connect(function()
+		print("Changing")
 		self.Enabled = self.Viewmodel:GetAttribute("Enabled")
 	end)
 
@@ -153,14 +159,18 @@ function Class:Mount(model: Model, ...)
 	self.Enabled = true
 	self.Viewmodel.Parent = Camera
 	self:Rendered(...)
+	self.Viewmodel:SetAttribute("Enabled", true)
 	task.spawn(function()
-		while self.Enabled do
-			local DT = task.wait()
+		local Connection
+		Connection = RS.RenderStepped:Connect(function(DT)
 			self.CFrame = Camera.CFrame
 			self.UpdateSprings(DT)
 			self:Updated(DT)
 			self.Viewmodel:PivotTo(self.CFrame)
-		end
+			if not self.Enabled then
+				Connection:Disconnect()
+			end
+		end)
 	end)
 end
 
