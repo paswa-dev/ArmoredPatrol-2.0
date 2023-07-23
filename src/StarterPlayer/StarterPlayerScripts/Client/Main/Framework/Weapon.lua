@@ -1,3 +1,4 @@
+local UserInputService = game:GetService("UserInputService")
 local Framework = _G.get("Viewmodel")
 local Viewmodel = _G.VIEWMODEL
 
@@ -6,6 +7,15 @@ local cos, sin = math.cos, math.sin
 local function BobbingCurve(t, frequency, amplitude)
 	return Vector2.new(cos((frequency * 0.5) * t), sin(frequency * t)) * amplitude
 end
+
+--[[
+
+Properties of Weapon Class
+offset
+recoil
+
+
+--]]
 
 local Weapon = Framework.new(Viewmodel)
 
@@ -16,15 +26,17 @@ Weapon.Spring("RecoilAngle", Vector3.zero, 4, 0.5)
 Weapon.Spring("Sway", Vector2.zero, 15, 2)
 Weapon.Spring("Bobbing", Vector3.zero, 15, 1)
 
-function Weapon:Mounted()
+function Weapon:Mounted(properties)
 	local Viewmodel = self.Viewmodel
 	local Model = self.Model
+	--// Initiate keybinds and other singals/functions in :Set/:Get
 end
 
 function Weapon:Updated(dt)
 	local Springs = self.Springs
 	local CFrame: CFrame = self.CFrame
-	CFrame = CFrame:ToWorldSpace()
+	CFrame = CFrame * CFrame.new(Springs.Vector.Position)
+	CFrame = CFrame * CFrame.Angles(self:Unpack(Springs.Rotation))
 end
 
 function Weapon:Unmounted() end
