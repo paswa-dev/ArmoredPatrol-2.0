@@ -41,11 +41,6 @@ API:
 
 local Spring = {}
 
-local sqrt = math.sqrt
-local cos = math.cos
-local sin = math.sin
-local exp = math.exp
-
 --- Creates a new spring
 -- @param initial A number or Vector3 (anything with * number and addition/subtraction defined)
 function Spring.new(initial)
@@ -142,17 +137,17 @@ function Spring:_positionVelocity(now)
 
 	local h, si, co
 	if d2 < 1 then
-		h = sqrt(1 - d2)
-		local ep = exp(-d * t) / h
-		co, si = ep * cos(h * t), ep * sin(h * t)
+		h = math.sqrt(1 - d2)
+		local ep = math.exp(-d * t) / h
+		co, si = ep * math.cos(h * t), ep * math.sin(h * t)
 	elseif d2 == 1 then
 		h = 1
-		local ep = exp(-d * t) / h
+		local ep = math.exp(-d * t) / h
 		co, si = ep, ep * t
 	else
-		h = sqrt(d2 - 1)
-		local u = exp((-d + h) * t) / (2 * h)
-		local v = exp((-d - h) * t) / (2 * h)
+		h = math.sqrt(d2 - 1)
+		local u = math.exp((-d + h) * t) / (2 * h)
+		local v = math.exp((-d - h) * t) / (2 * h)
 		co, si = u + v, u - v
 	end
 

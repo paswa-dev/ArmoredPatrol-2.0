@@ -16,7 +16,7 @@ local Weapon = Framework.new(Viewmodel)
 
 Weapon.Spring("Vector", Vector3.zero, 10, 1)
 Weapon.Spring("AimVector", Vector3.zero, 10, 1)
-Weapon.Spring("Rotation", Vector3.zero, 10, 1)
+Weapon.Spring("Rotation", Vector3.new(math.pi * 0.5, 0, 0), 10, 1)
 Weapon.Spring("Recoil", Vector3.zero, 15, 0.5)
 Weapon.Spring("RecoilAngle", Vector3.zero, 4, 0.5)
 Weapon.Spring("Sway", Vector2.zero, 15, 2)
@@ -28,9 +28,10 @@ function Weapon:Mounted(properties)
 	self:Set("Aiming", false)
 	self:Set("AimAttachment", properties.AimAttachment)
 	self:Set("Settings", Settings)
-	Springs.Rotation.Target = Vector3.new(math.pi / 2, 0, 0) --// Aim it down
+	Springs.Rotation.Target = Vector3.new(math.pi * 0.5, 0, 0)
 	Springs.Vector.Target = Settings.offset
-	print(Settings.offset)
+	--self:LoadAnimation("Idle", Settings.idle_animation)
+
 	--// Initiate keybinds and other singals/functions in :Set/:Get
 end
 
@@ -52,7 +53,7 @@ function Weapon:Updated(dt)
 	end
 
 	Springs.AimVector.Target = AimVector
-	print(Springs.Vector.Position)
+	print(Springs.Rotation.Position)
 	RCFrame = RCFrame * CFrame.new(Springs.Vector.Position + Springs.AimVector.Position)
 	RCFrame = RCFrame * CFrame.Angles(self:Unpack(Springs.Rotation.Position))
 	RCFrame = RCFrame * CFrame.Angles(self:Unpack(Springs.RecoilAngle.Position))
@@ -66,7 +67,9 @@ function Weapon:Unmounted() end
 
 function Weapon:Rendered()
 	local Springs = self.Springs
-	Springs.Rotation.Target = Vector3.zero --// Its now in the FORWARD POSITION
+	Springs.Rotation.Target = Vector3.new(0, 0, 0)
+	print("Running IDLE")
+	--self:PlayAnimation("Idle")
 end
 
 function Weapon:Unrendered()

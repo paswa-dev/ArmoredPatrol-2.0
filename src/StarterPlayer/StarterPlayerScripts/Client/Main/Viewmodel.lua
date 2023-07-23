@@ -81,7 +81,6 @@ function Class.new(viewmodel)
 	--// Connections
 
 	self.EnabledChanged = self.Viewmodel:GetAttributeChangedSignal("Enabled"):Connect(function()
-		print("Changing")
 		self.Enabled = self.Viewmodel:GetAttribute("Enabled")
 	end)
 
