@@ -15,12 +15,12 @@ Lifecycle events
 :Rendered
 :Unrendered
 :Unmounted
-:Animated(animation_name)
-:SoundPlayed()
+:Animated(animation_name, anim_instance)
+:SoundPlayed(sound_name, sound_instance)
 
 --]]
 
-local function MotorWeapon(main, other)
+local function MotorModel(main, other)
 	if main:FindFirstChild("MotorFramework") then
 		main.MotorFramework:Destroy()
 	end
@@ -50,13 +50,13 @@ function Class.new(viewmodel)
 	self.Animations = {}
 	self.Sounds = {}
 	self.Springs = {}
+	self.Values = {}
 
 	self.Enabled = false
-
 	--// Internals
 
 	function self.LoadModel(model)
-		self.Weapon = model
+		self.Model = model
 	end
 
 	function self.Spring(name, value, speed, damping)
@@ -92,6 +92,14 @@ function Class:Animated() end
 function Class:SoundPlayed() end
 
 --// Utility
+
+function Class:Set(index, value)
+	self.Values[index] = value
+end
+
+function Class:Get(index)
+	return self.Values[index]
+end
 
 function Class:Unpack(Vector: Vector3 | Vector2, Order: string, NegateOrder: string)
 	Order = Order or "XYZ"
@@ -136,13 +144,15 @@ end
 
 --// Actual stuff
 
-function Class:Mount(model: Model)
+function Class:Mount(model: Model, ...)
 	self.LoadModel(model)
-	MotorWeapon(self.Viewmodel.PrimaryPart, self.Weapon:IsA("BasePart") and self.Weapon or self.Weapon.PrimaryPart)
-	self:Mounted()
+
+	MotorModel(self.Viewmodel.PrimaryPart, self.Model:IsA("BasePart") and self.Model or self.Model.PrimaryPart)
+
+	self:Mounted(...)
 	self.Enabled = true
 	self.Viewmodel.Parent = Camera
-	self:Rendered()
+	self:Rendered(...)
 	task.spawn(function()
 		while self.Enabled do
 			local DT = task.wait()
@@ -154,10 +164,10 @@ function Class:Mount(model: Model)
 	end)
 end
 
-function Class:Unmount()
-	self.Unrendered()
+function Class:Unmount(...)
+	self.Unrendered(...)
 	self.Viewmodel.Parent = nil
-	self:Unmounted()
+	self:Unmounted(...)
 	self.Viewmodel:SetAttribute("Enabled", false) --// Respect the script
 end
 

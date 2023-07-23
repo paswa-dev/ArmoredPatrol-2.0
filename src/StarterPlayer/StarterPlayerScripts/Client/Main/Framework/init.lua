@@ -9,7 +9,8 @@ local function __init__()
 		_G.Viewmodel = Viewmodel
 		Class.Started = true
 		Class.Items = {
-			Gernade = require(Class.Items),
+			Gernade = require(script.Gernade),
+			Weapon = require(script.Weapon),
 		}
 	end
 end
