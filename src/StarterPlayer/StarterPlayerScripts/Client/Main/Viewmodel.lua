@@ -1,193 +1,152 @@
 local get = _G.get
-
-local SoundBin = game.SoundService --// Where the sounds should be dumped
-local Debris = game:GetService("Debris")
---local Controls = get("Controls") --// Add this later
-local Spring = get("Spring")
-
 local RS = game:GetService("RunService")
-
 local Camera = workspace.CurrentCamera
 
+local TAU = math.pi * 2
+local HPI = math.pi * 0.5
+local CNew = CFrame.new
+local Angle = CFrame.Angles
+
+local Spring = get("Spring")
+local Signal = get("FastSignal")
+
 local Class = {}
+Class.__index = Class
 
 --[[
 
-Lifecycle events
-:Updated
-:Mounted
-:Rendered
-:Unrendered
-:Unmounted
-:Animated(animation_name, anim_instance)
-:SoundPlayed(sound_name, sound_instance)
+Gun must contain
+1. A folder with the animations
+2. A folder with the sounds
+3. Aim attachment named "AIM"
+4. Barrel attachment named "BARREL"
 
 --]]
 
-local function MotorModel(main, other)
-	if main:FindFirstChild("MotorFramework") then
-		main.MotorFramework:Destroy()
+local function Map(bin: Folder, callback)
+	local Mapping = {}
+	for _, File in next, bin:GetChildren() do
+		Mapping[File.Name] = callback and callback(File) or File
 	end
+	return Mapping
+end
+
+local function MotorTogether(primary, secondary)
 	local Motor = Instance.new("Motor6D")
-	Motor.Name = "MotorFramework"
-	Motor.Part0 = main
-	Motor.Part1 = other
-	Motor.Parent = main
+	Motor.Part0 = primary
+	Motor.Part1 = secondary
+	Motor.Parent = primary
 	return Motor
 end
 
-local CF = CFrame.new
-local Angle = CFrame.Angles
-
-function Class.new(viewmodel)
+function Class.new(weapons_folder, weapon_viewmodel)
+	assert(weapon_viewmodel.PrimaryPart ~= nil, "Must contain a primaryPart")
 	local self = {}
-
-	--// Public Variables
-
-	self.CFrame = CFrame.identity
-	self.Model = nil
-	self.Viewmodel = viewmodel:Clone()
-	self.Animator = self.Viewmodel:FindFirstChildWhichIsA("Animator", true)
-
-	self.Viewmodel:SetAttribute("Enabled", false)
-
-	self.Animations = {}
-	self.Sounds = {}
+	self.Folder = weapons_folder
+	self.Viewmodel = weapon_viewmodel:Clone()
+	self.PrimaryPart = self.Viewmodel.PrimaryPart
 	self.Springs = {}
-	self.Values = {}
+	self.Equipped = nil
+	self.Activated = Signal.new()
+	self.Active = false
 
-	self.Enabled = false
-	--// Internals
+	self.MappedAnimations = {}
+	self.MappedSounds = {}
 
-	function self.LoadModel(model)
-		self.Model = model
-		model.Parent = self.Viewmodel
+	self.Spring = function(name, v, s, d)
+		local _spring = Spring.new(v)
+		self.Springs[name] = _spring
+		_spring._speed = s
+		_spring._damping = d
+		return _spring
 	end
 
-	function self.Spring(name, value, speed, damping)
-		local Spring = Spring.new(value)
-		Spring._damper = damping or 1
-		Spring._speed = speed or 1
-		self.Springs[name] = Spring
-		return Spring
+	self.Spring("Vector", Vector3.zero, 10, 1)
+	self.Spring("AimVector", Vector3.zero, 10, 1)
+	self.Spring("Rotation", Vector3.zero, 10, 1)
+	self.Spring("RecoilVector", Vector3.zero, 15, 0.5)
+	self.Spring("RecoilRotation", Vector3.zero, 4, 0.8)
+	self.Spring("Sway", Vector2.zero, 4, 0.9)
+	self.Spring("Bobble", Vector2.zero, 6, 0.9)
+
+	local Springs = self.Springs
+
+	self.Update = function(dt)
+		local Vector = Springs["Vector"].Position
+		local AimVector = Springs["AimVector"].Position
+		local Rotation = Springs["Rotation"].Position
+		local RecoilVector = Springs["RecoilVector"].Position
+		local RecoilRotation = Springs["RecoilRotation"].Position
+		local Sway = Springs["Sway"].Position
+		local Bobble = Springs["Bobble"].Position
+		local RenderedCFrame = self.PrimaryPart.CFrame
+		RenderedCFrame *= CNew(Vector + AimVector)
+		RenderedCFrame *= Angle(Rotation.X, Rotation.Y, Rotation.Z)
+		RenderedCFrame *= CNew(RecoilVector)
+		RenderedCFrame *= Angle(RecoilRotation.X, RecoilRotation.Y, RecoilRotation.Z)
+		RenderedCFrame *= Angle(Sway.X, Sway.Y, Sway.Y)
+		RenderedCFrame *= CNew(Bobble.X, Bobble.Y, 0)
 	end
 
-	function self.UpdateSprings(dt)
-		for _, _spring in pairs(self.Springs) do
-			_spring:TimeSkip(dt)
-		end
-	end
-
-	--// Connections
-
-	self.EnabledChanged = self.Viewmodel:GetAttributeChangedSignal("Enabled"):Connect(function()
-		self.Enabled = self.Viewmodel:GetAttribute("Enabled")
-	end)
-
-	return setmetatable(self, { __index = Class })
-end
-
---// Lifecycle events
-function Class:Mounted() end
-function Class:Unmounted() end
-function Class:Rendered() end
-function Class:Unrendered() end
-function Class:Updated() end
-function Class:Animated() end
-function Class:SoundPlayed() end
-
---// Utility
-
-function Class:Set(index, value)
-	self.Values[index] = value
-end
-
-function Class:Get(index)
-	return self.Values[index]
-end
-
-function Class:Unpack(Vector: Vector3 | Vector2, Order: string, NegateOrder: string)
-	Order = Order or "XYZ"
-	NegateOrder = NegateOrder or "___"
-	local Packed = {}
-	for i = 1, 3 do
-		local Axis = Order:sub(i, i)
-		local Negate = NegateOrder:sub(i, i)
-		local Negated = Negate == "-"
-		table.insert(Packed, Negated and -Vector[Axis] or Vector[Axis])
-	end
-	return table.unpack(Packed)
-end
-
-function Class:LoadAnimation(name: string, animation: Animation)
-	assert(self.Animator, "No animator has been provided, stopping...")
-	local Loaded = self.Animator:LoadAnimation(animation)
-	self.Animations[name] = Loaded
-end
-
-function Class:PlayAnimation(name: string)
-	local Anim = self.Animations[name]
-	if not Anim then
-		error("Does not exist")
-	end
-	Anim:Play()
-	self:Animated(name, Anim)
-end
-
-function Class:LoadSound(name: string, sound: Sound)
-	self.Sounds[name] = sound
-end
-
-function Class:PlaySound(name: string)
-	local New = self.Sounds[name] and self.Sounds[name]:Clone() or nil
-	assert(New ~= nil, "Could not find sound, is it loaded?")
-	New.Parent = SoundBin
-	New:Play()
-	self:SoundPlayed(name, New)
-	Debris:AddItem(New, New.TimeLength)
-end
-
---// Actual stuff
-
-function Class:Mount(model: Model, ...)
-	self.LoadModel(model)
-
-	MotorModel(self.Viewmodel.PrimaryPart, self.Model:IsA("BasePart") and self.Model or self.Model.PrimaryPart)
-
-	self:Mounted(...)
-	self.Enabled = true
-	self.Viewmodel.Parent = Camera
-	self:Rendered(...)
-	self.Viewmodel:SetAttribute("Enabled", true)
-	task.spawn(function()
-		local Connection
-		Connection = RS.RenderStepped:Connect(function(DT)
-			self.CFrame = Camera.CFrame
-			self.UpdateSprings(DT)
-			self:Updated(DT)
-			self.Viewmodel:PivotTo(self.CFrame)
-			if not self.Enabled then
-				Connection:Disconnect()
+	self.Connection = RS.RenderStepped:Connect(function(dt)
+		if self.Equipped then
+			if self.Active then
+				self.Activated:Fire()
+				self.Active = false
 			end
-		end)
+			for _, InsertedSpring in next, self.Springs do
+				InsertedSpring:TimeSkip(dt)
+			end
+			self.Update(dt)
+		end
 	end)
+
+	return setmetatable(self, Class)
 end
 
-function Class:Unmount(...)
-	self.Unrendered(...)
-	self.Viewmodel.Parent = nil
-	self:Unmounted(...)
-	self.Viewmodel:SetAttribute("Enabled", false) --// Respect the script
-end
+function Class:Equip(name)
+	local WeaponOfChoice = self.Folder:FindFirstChild(name)
+	if WeaponOfChoice then
+		local Springs = self.Springs
+		if self.Equipped == WeaponOfChoice then
+			return
+		end
+		self.Equipped = WeaponOfChoice:Clone()
+		MotorTogether(self.PrimaryPart, self.Equipped.PrimaryPart)
+		self.Viewmodel.Parent = Camera
+		---
+		local Equipped = self.Equipped
+		local Animations = Equipped:FindFirstChild("Animations")
+		local Sounds = Equipped:FindFirstChild("Sounds")
+		local Activated = Equipped:FindFirstChild("Activated")
+		local Animator = Equipped:FindFirstChild("Animator", true)
+		if not Animations or not Sounds or not Activated or not Animator then
+			error("Must have Animations, Sounds, Activated")
+		end
+		self.MappedAnimations = Map(Animations, function(f)
+			return Animator:LoadAnimation(f)
+		end)
+		self.MappedSounds = Map(Sounds)
+		local LoadedActivated = require(Activated)
 
-function Class:Destroy()
-	if self.Enabled then
-		self:Unmount()
+		task.wait(0.5)
+
+		self.Activated:Connect(function()
+			LoadedActivated(self)
+		end)
+
+		self.MappedAnimations["Idle"]:Play()
+		Springs["Rotation"].Target = Vector3.new(0, 0, 0)
 	end
-	self.Viewmodel:Destroy()
-	self.EnabledChanged:Disconnect()
-	self = nil
-	return nil
+end
+
+function Class:Unequip()
+	if self.Equipped then
+		self.Activated:DisconnectAll()
+		self.Springs["Rotation"].Target = Vector3.new(HPI, 0, 0)
+		task.wait(1)
+		self.Equipped = nil
+	end
 end
 
 return Class
